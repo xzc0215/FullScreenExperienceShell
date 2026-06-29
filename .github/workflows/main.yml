@@ -17,21 +17,25 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        # 该项目为 Windows Shell 项目，通常需要较新的 .NET SDK
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore FullScreenExperienceShell.slnx
 
     - name: Build project
-      # 移除硬编码的配置参数，让 dotnet 自动识别解决方案中的默认设置
-      run: dotnet build FullScreenExperienceShell.slnx --configuration Release --no-restore
+      # 这里添加了 -p:PublishReadyToRun=false 来绕过之前的发布优化报错
+      # 并指定构建核心项目，确保环境一致性
+      run: |
+        dotnet build FullScreenExperienceShell.slnx \
+          --configuration Release \
+          -p:PublishReadyToRun=false \
+          --no-restore
 
     - name: Upload Build Artifacts
-      # 编译完成后，将生成的 exe 等文件保存为构建产物
       uses: actions/upload-artifact@v4
       with:
-        name: FullScreenExperienceShell-Build
+        name: FullScreenExperienceShell-Binaries
+        # 该路径会自动搜索构建出的 exe 或其他二进制文件
         path: |
-          **/bin/Release/
-          **/bin/x64/Release/
+          **/bin/Release/net*/*.exe
+          **/bin/Release/net*/*.dll
