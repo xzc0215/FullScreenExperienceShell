@@ -23,13 +23,12 @@ jobs:
       run: dotnet restore FullScreenExperienceShell.slnx
 
     - name: Build project
-      # 已修复：改为 PowerShell 兼容的单行格式
       run: dotnet build FullScreenExperienceShell.slnx --configuration Release -p:PublishReadyToRun=false --no-restore
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: FullScreenExperienceShell-Binaries
+        # 這裡擴展了搜尋範圍，包含整個 bin 目錄結構，確保不會遺漏
         path: |
-          **/bin/Release/net*/*.exe
-          **/bin/Release/net*/*.dll
+          **/bin/**/*
