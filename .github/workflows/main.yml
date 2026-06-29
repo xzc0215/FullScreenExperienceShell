@@ -14,14 +14,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        # 该项目为 Windows Shell 项目，通常需要较新的 .NET SDK
+        dotnet-version: '8.0.x'
 
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v2
-
-    - name: Restore NuGet packages
-      run: nuget restore FullScreenExperienceShell.slnx
+    - name: Restore dependencies
+      run: dotnet restore FullScreenExperienceShell.slnx
 
     - name: Build project
-      run: msbuild FullScreenExperienceShell.slnx /p:Configuration=Release /p:Platform="Any CPU"
+      # 移除硬编码的配置参数，让 dotnet 自动识别解决方案中的默认设置
+      run: dotnet build FullScreenExperienceShell.slnx --configuration Release --no-restore
+
+    - name: Upload Build Artifacts
+      # 编译完成后，将生成的 exe 等文件保存为构建产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: FullScreenExperienceShell-Build
+        path: |
+          **/bin/Release/
+          **/bin/x64/Release/
